@@ -66,4 +66,3 @@ gem 'faraday'
 gem 'json'
 gem 'pry'
 gem "mini_magick"
-gem 'jquery-slick-rails', '~> 1.9'
