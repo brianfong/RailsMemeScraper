@@ -5,12 +5,9 @@
 <table>
   <thead>
     <tr>
-      <th>Name</th>
       <th>Author</th>
       <th>Title</th>
-      <th>Text</th>
-      <th>Url</th>
-      <th>Permalink</th>
+      <th>Image</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -18,15 +15,9 @@
   <tbody>
     <% @memes.each do |meme| %>
       <tr>
-        <td><%= meme.name %></td>
         <td><%= meme.author %></td>
-        <td><%= meme.title %></td>
-        <td><%= meme.text %></td>
-        <td><%= meme.url %></td>
-        <td><%= meme.permalink %></td>
-        <td><%= link_to 'Show', meme %></td>
-        <td><%= link_to 'Edit', edit_meme_path(meme) %></td>
-        <td><%= link_to 'Destroy', meme, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><a href="https://www.reddit.com/<%= meme.permalink %>"><%= meme.title %></a></td>
+        <td><img src="<%= meme.url %>" alt="<%= meme.title %>" height="42" width="42"></td>
       </tr>
     <% end %>
   </tbody>
@@ -34,5 +25,4 @@
 
 <br>
 
-<%= link_to 'New Meme', new_meme_path %>
 <%= link_to "Meme Carousel", "/carousel/new" %>

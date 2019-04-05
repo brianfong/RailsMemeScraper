@@ -1,2 +1,22 @@
-<h1>Carousel#create</h1>
-<p>Find me in app/views/carousel/create.html.erb</p>
+  <div id="spa_gallery" class="carousel slide" data-ride="carousel"> 
+    <!-- Carousel indicators -->
+
+    <!-- Wrapper for carousel items -->
+    <div class="carousel-inner">
+
+
+<?php
+$dirname = "spa_gallery/";
+$images = glob($dirname."*.jpg");
+foreach($images as $image) {
+  ?>
+   <div class="item"><img src="<?php echo $image; ?>" /></div>
+  <?php
+}
+
+
+    <!-- Carousel controls --> 
+    <a class="carousel-control left" href="#spa_gallery" data-slide="prev">        <span class="glyphicon glyphicon-chevron-left"></span> </a> 
+<a class="carousel-control right" href="#spa_gallery" data-slide="next"> <span class="glyphicon glyphicon-chevron-right"></span> </a> 
+</div>
+</div>

@@ -16,11 +16,8 @@ ActiveRecord::Schema.define(version: 2019_04_02_205108) do
     t.string "name"
     t.text "author"
     t.string "title"
-    t.string "text"
     t.text "url"
     t.text "permalink"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
 end
