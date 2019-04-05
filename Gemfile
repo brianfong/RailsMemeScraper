@@ -66,3 +66,5 @@ gem 'faraday'
 gem 'json'
 gem 'pry'
 gem "mini_magick"
+gem 'bootstrap-sass'
+gem 'jquery-rails'

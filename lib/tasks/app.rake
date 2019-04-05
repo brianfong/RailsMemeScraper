@@ -18,7 +18,7 @@ def user_agent
   "Reddit::Scraper v0.0.4 (https://github.com/brianfong/RedditScraper)"
 end
 
-db = SQLite3::Database.new "./db/test.db"
+db = SQLite3::Database.new "./db/MemeDB.db"
 
 rows = db.execute <<-SQL
 create table if not exists posts (
@@ -82,7 +82,7 @@ JSON.parse(parsed_json)['data']['children'].each do |child|
     logger.info "Exif: #{image.exif}"
     image.resize "500x500"
     image.format "png"
-    image.write "./tmp/#{name}.png"
+    image.write "./app/assets/images/#{name}.png"
 
   rescue
     logger.info "Skipping insert: #{name}"
