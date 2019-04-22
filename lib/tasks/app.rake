@@ -6,7 +6,7 @@ require 'pry'
 require 'net/https'
 require 'open-uri'
 require 'logger'
-require 'sqlite3'
+require 'pg'
 require 'uri'
 require 'fileutils'
 require 'mini_magick'
@@ -28,15 +28,15 @@ task :memes => :environment do
   # Move to DB migration
   db = SQLite3::Database.new "./db/development.sqlite3"
 
-  # rows = db.execute <<-SQL
-  # create table if not exists posts (
-  #   name varchar(30),
-  #   author text,
-  #   title text,
-  #   url text,
-  #   permalink text
-  # );
-  # SQL
+  rows = db.execute <<-SQL
+  create table if not exists posts (
+    name varchar(30),
+    author text,
+    title text,
+    url text,
+    permalink text
+  );
+  SQL
 
   rows = db.execute <<-SQL
   create unique index if not exists name_memes on memes(name);
