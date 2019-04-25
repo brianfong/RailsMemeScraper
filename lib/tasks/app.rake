@@ -46,11 +46,7 @@ task :memes => :environment do
     permalink = child['data']['permalink']
 
     @meme = Meme.new()
-    @meme.update_attributes(:name => name)
-    @meme.update_attributes(:title => title)
-    @meme.update_attributes(:author => author)
-    @meme.update_attributes(:url => url)
-    @meme.update_attributes(:permalink => permalink)
+    @meme.update_attributes(:name => name, :title => title, :author => author, :url => url, :permalink => permalink)
     # :name, :author, :title, :text, :url, :permalink
   end
 
