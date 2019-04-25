@@ -13,7 +13,7 @@
   </thead>
 
   <tbody>
-    <% @memes.each do |meme| %>
+    <% @memes.order("id ASC").each do |meme| %>
       <tr>
         <td><%= meme.author %></td>
         <td><a href="https://www.reddit.com/<%= meme.permalink %>"><%= meme.title %></a></td>

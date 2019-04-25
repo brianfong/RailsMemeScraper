@@ -6,7 +6,7 @@ require 'pry'
 require 'net/https'
 require 'open-uri'
 require 'logger'
-require 'sqlite3'
+require 'pg'
 require 'uri'
 require 'fileutils'
 require 'mini_magick'
@@ -18,30 +18,12 @@ task :memes => :environment do
 
   # Move to config/initalizers/
   logger = Logger.new(STDOUT)
-  logger.level = Logger::DEBUG
+  logger.level = Logger::INFO
 
   def user_agent
     "Reddit::Scraper v0.0.4 (https://github.com/brianfong/RedditScraper)"
   end
   # end config/init..
-
-  # Move to DB migration
-  db = SQLite3::Database.new "./db/development.sqlite3"
-
-  # rows = db.execute <<-SQL
-  # create table if not exists posts (
-  #   name varchar(30),
-  #   author text,
-  #   title text,
-  #   url text,
-  #   permalink text
-  # );
-  # SQL
-
-  rows = db.execute <<-SQL
-  create unique index if not exists name_memes on memes(name);
-  SQL
-  #End DB Migration
 
   # Move to config/init..
   Faraday.default_connection = Faraday.new(options = {:headers=>{:user_agent => user_agent }})
@@ -60,42 +42,17 @@ task :memes => :environment do
     name      = child['data']['name']
     title     = child['data']['title']
     author    = child['data']['author']
-    url       = child['data']['url']
+    url    = child['data']['url']
     permalink = child['data']['permalink']
 
-    #binding.pry
-
-    # TODO: Move to rails legit; refer to the blog homework
-    #       Write some migrations, use ActiveRecord.
-    # TODO: Does this post already exist? Skip if it does
-    # TODO: Add an "ID" column, set as uuid or integer. If you use uuid, you will also need a column of created_at.
-    
-    def existsCheck(permalink)
-      temp = db.execute( "SELECT 1 where exists(
-          SELECT permalink
-          FROM memes
-          WHERE permalink = ?
-      ) ", [permalink] ).any?
-
-      exit if existsCheck(permalink) != 0
-
-    end
-
-    begin
-      db.execute("INSERT INTO memes (name, author, title, url, permalink) VALUES (?, ?, ?, ?, ?)", [name, author, title, url, permalink])
-      logger.info "Inserting: #{name}"
-      logger.warn "Downloading #{url}"
-
-      image = MiniMagick::Image.open("#{url}")
-      # binding.pry
-      logger.info "Exif: #{image.exif}"
-      image.resize "500x500"
-      image.format "png"
-      image.write "./app/assets/images/#{name}.png"
-
-    rescue
-      logger.info "Skipping insert: #{name}"
-    end
+    @meme = Meme.new()
+    @meme.update_attributes(:name => name)
+    @meme.update_attributes(:title => title)
+    @meme.update_attributes(:author => author)
+    @meme.update_attributes(:url => url)
+    @meme.update_attributes(:permalink => permalink)
+    # :name, :author, :title, :text, :url, :permalink
   end
 
 end
+
