@@ -10,6 +10,7 @@ require 'pg'
 require 'uri'
 require 'fileutils'
 require 'mini_magick'
+require 'health_check'
 
 
 desc "Fetch Memes"
