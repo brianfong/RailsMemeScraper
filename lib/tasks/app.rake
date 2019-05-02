@@ -40,15 +40,18 @@ task :memes => :environment do
   logger.debug parsed_json
 
   JSON.parse(parsed_json)['data']['children'].each do |child|
+
+    @meme = Meme.new()
+
     name      = child['data']['name']
     title     = child['data']['title']
     author    = child['data']['author']
-    url    = child['data']['url']
+    url       = child['data']['url']
     permalink = child['data']['permalink']
+    stickied  = child['data']['stickied']
 
-    @meme = Meme.new()
-    @meme.update_attributes(:name => name, :title => title, :author => author, :url => url, :permalink => permalink)
-    # :name, :author, :title, :text, :url, :permalink
+    # @meme.save
+    @meme.update_attributes(:name => name, :title => title, :author => author, :url => url, :permalink => permalink, :stickied => stickied)
   end
 
 end
