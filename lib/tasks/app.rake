@@ -48,10 +48,11 @@ task :memes => :environment do
     author    = child['data']['author']
     url       = child['data']['url']
     permalink = child['data']['permalink']
-    stickied  = child['data']['stickied']
+    #stickied  = child['data']['stickied']
 
     # @meme.save
-    @meme.update_attributes(:name => name, :title => title, :author => author, :url => url, :permalink => permalink, :stickied => stickied)
+    @meme.update_attributes(:name => name, :title => title, :author => author, :url => url, :permalink => permalink)
+      #, :stickied => stickied)
   end
 
 end
