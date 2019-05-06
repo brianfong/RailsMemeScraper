@@ -6,7 +6,7 @@ class CreateMemes < ActiveRecord::Migration[5.2]
       t.string :title
       t.text :url
       t.text :permalink
-      # t.timestamps
+      t.timestamps
     end
   end
 end
