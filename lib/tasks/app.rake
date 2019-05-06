@@ -10,6 +10,7 @@ require 'pg'
 require 'uri'
 require 'fileutils'
 require 'mini_magick'
+require 'newrelic_rpm'
 
 
 desc "Fetch Memes"
