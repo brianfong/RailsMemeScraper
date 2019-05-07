@@ -13,7 +13,7 @@
   </thead>
 
   <tbody>
-      <% @memes.where("stickied=false").order("id ASC").each do |meme| %>
+      <% @memes.order("id DESC").each do |meme| %>
       <tr>
         <td><%= meme.author %></td>
         <td><a href="https://www.reddit.com/<%= meme.permalink %>"><%= meme.title %></a></td>
@@ -26,3 +26,5 @@
 <br>
 
 <%= link_to "Meme Carousel", "/carousel/new" %>
+
+      <%# <% @memes.where("stickied=false").order("id ASC").each do |meme| %> %>
