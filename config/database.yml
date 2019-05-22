@@ -1,20 +1,19 @@
-default: &default
+default: &brian
   adapter: postgresql
   encoding: unicode
-  #username: memes
   host: 127.0.0.1
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
-  <<: *default
+  <<: *brian
   database: development
 
 test:
-  <<: *default
+  <<: *brian
   database: test
 
 production:
-  <<: *default
+  <<: *brian
   database: production
   # username: admin 
   # password: admin
