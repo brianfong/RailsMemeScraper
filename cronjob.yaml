@@ -1,0 +1,51 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"batch/v1beta1","kind":"CronJob","metadata":{"annotations":{},"name":"fetch-memes","namespace":"default"},"spec":{"concurrencyPolicy":"Forbid","failedJobsHistoryLimit":3,"jobTemplate":{"spec":{"template":{"spec":{"containers":[{"command":["rake","memes"],"env":[{"name":"RAILS_ENV","value":"production"},{"name":"DATABASE_URL","value":"postgres://memes:redditmemes@postgres:5432/memes"}],"image":"reddit_scraper","imagePullPolicy":"Never","name":"worker","resources":{"requests":{"cpu":"1","memory":"512Mi"}}}],"restartPolicy":"Never"}}}},"schedule":"*/5 * * * *"}}
+  creationTimestamp: 2019-05-24T01:41:48Z
+  name: fetch-memes
+  namespace: default
+  resourceVersion: "208423"
+  selfLink: /apis/batch/v1beta1/namespaces/default/cronjobs/fetch-memes
+  uid: 18cd8cb3-7dc5-11e9-beed-025000000001
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - command:
+            - rake
+            - memes
+            env:
+            - name: RAILS_ENV
+              value: production
+            - name: DATABASE_URL
+              value: postgres://memes:redditmemes@postgres:5432/memes
+            image: reddit_scraper
+            imagePullPolicy: Never
+            name: worker
+            resources:
+              requests:
+                cpu: "1"
+                memory: 512Mi
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+  schedule: '*/30 * * * *'
+  successfulJobsHistoryLimit: 3
+  suspend: false
+status:
+  lastScheduleTime: 2019-05-26T07:00:00Z

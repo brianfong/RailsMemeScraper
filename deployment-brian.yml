@@ -1,0 +1,83 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "4"
+  creationTimestamp: 2019-05-09T22:59:41Z
+  generation: 6
+  labels:
+    run: brian
+  name: brian
+  namespace: default
+  resourceVersion: "210541"
+  selfLink: /apis/extensions/v1beta1/namespaces/default/deployments/brian
+  uid: 20f7ddba-72ae-11e9-aa52-025000000001
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      run: brian
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: brian
+    spec:
+      containers:
+      - env:
+        - name: DATABASE_URL
+          value: postgres://memes:redditmemes@postgres:5432/memes
+        - name: RAILS_ENV
+          value: production
+        image: reddit_scraper
+        imagePullPolicy: Never
+        name: brian
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - command:
+        - rake
+        - db:migrate
+        env:
+        - name: DATABASE_URL
+          value: postgres://memes:redditmemes@postgres:5432/memes
+        - name: RAILS_ENV
+          value: production
+        image: reddit_scraper
+        imagePullPolicy: Never
+        name: db-migrate
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: 2019-05-09T23:02:31Z
+    lastUpdateTime: 2019-05-09T23:02:31Z
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: 2019-05-09T22:59:41Z
+    lastUpdateTime: 2019-05-24T01:33:41Z
+    message: ReplicaSet "brian-fdcb7f898" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 6
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
