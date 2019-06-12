@@ -1,0 +1,159 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: memes
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: postgres
+  name: postgres
+  namespace: memes
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      run: postgres
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        run: postgres
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_USER
+          value: memes
+        - name: POSTGRES_PASSWORD
+          value: redditmemes
+        image: postgres
+        imagePullPolicy: Always
+        name: postgres
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: postgres
+  name: postgres
+  namespace: memes
+spec:
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    run: postgres
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: app
+  name: app
+  namespace: memes
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      run: app
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        run: app
+    spec:
+      containers:
+      - env:
+        - name: DATABASE_URL
+          value: postgres://memes:redditmemes@postgres:5432/memes
+        - name: RAILS_ENV
+          value: production
+        image: reddit_scraper
+        imagePullPolicy: Never
+        name: app
+      initContainers:
+      - command:
+        - rake
+        - db:migrate
+        env:
+        - name: DATABASE_URL
+          value: postgres://memes:redditmemes@postgres:5432/memes
+        - name: RAILS_ENV
+          value: production
+        image: reddit_scraper
+        imagePullPolicy: Never
+        name: db-migrate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: app
+  name: app
+  namespace: memes
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    run: app
+  sessionAffinity: None
+  type: NodePort
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: fetch-memes
+  namespace: memes
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - command:
+            - rake
+            - memes
+            env:
+            - name: RAILS_ENV
+              value: production
+            - name: DATABASE_URL
+              value: postgres://memes:redditmemes@postgres:5432/memes
+            image: reddit_scraper
+            imagePullPolicy: Never
+            name: worker
+            resources:
+              requests:
+                cpu: "1"
+                memory: 512Mi
+          restartPolicy: Never
+  schedule: '*/30 * * * *'
+  successfulJobsHistoryLimit: 3
