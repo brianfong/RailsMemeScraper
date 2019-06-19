@@ -4,6 +4,24 @@ kind: Namespace
 metadata:
   name: memes
 ---
+apiVersion: v1
+data:
+  POSTGRES_USER: memes
+  POSTGRES_DB: memes
+kind: ConfigMap
+metadata:
+  name: env
+  namespace: memes
+---
+apiVersion: v1
+data:
+  POSTGRES_PASSWORD: cmVkZGl0bWVtZXM=
+kind: Secret
+metadata:
+  name: db-pass
+  namespace: memes
+type: Opaque
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -29,11 +47,11 @@ spec:
         run: postgres
     spec:
       containers:
-      - env:
-        - name: POSTGRES_USER
-          value: memes
-        - name: POSTGRES_PASSWORD
-          value: redditmemes
+      - envFrom:
+        - configMapRef: 
+            name: env
+        - secretRef: 
+            name: db-pass
         image: postgres
         imagePullPolicy: Always
         name: postgres
@@ -46,7 +64,7 @@ kind: Service
 metadata:
   labels:
     run: postgres
-  name: postgres
+  name: postgresß
   namespace: memes
 spec:
   ports:
@@ -57,6 +75,23 @@ spec:
     run: postgres
   sessionAffinity: None
   type: ClusterIP
+---
+apiVersion: v1
+data:
+  RAILS_ENV: production
+kind: ConfigMap
+metadata:
+  name: app-env
+  namespace: memes
+---
+apiVersion: v1
+data:
+  DATABASE_URL: cG9zdGdyZXM6Ly9tZW1lczpyZWRkaXRtZW1lc0Bwb3N0Z3Jlczo1NDMyL21lbWVz
+kind: Secret
+metadata:
+  name: app-db-pass
+  namespace: memes
+type: Opaque
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -83,23 +118,26 @@ spec:
         run: app
     spec:
       containers:
-      - env:
-        - name: DATABASE_URL
-          value: postgres://memes:redditmemes@postgres:5432/memes
-        - name: RAILS_ENV
-          value: production
+      - envFrom:
+        - configMapRef: 
+            name: app-env
+        - secretRef: 
+            name: app-db-pass
         image: reddit_scraper
         imagePullPolicy: Never
         name: app
+        ports:
+        - containerPort: 3000
+          protocol: TCP
       initContainers:
       - command:
         - rake
         - db:migrate
-        env:
-        - name: DATABASE_URL
-          value: postgres://memes:redditmemes@postgres:5432/memes
-        - name: RAILS_ENV
-          value: production
+        envFrom:
+        - configMapRef: 
+            name: app-env
+        - secretRef: 
+            name: app-db-pass
         image: reddit_scraper
         imagePullPolicy: Never
         name: db-migrate
