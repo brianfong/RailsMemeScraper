@@ -7,10 +7,17 @@ metadata:
 apiVersion: v1
 data:
   POSTGRES_USER: memes
-  POSTGRES_DB: memes
 kind: ConfigMap
 metadata:
   name: env
+  namespace: memes
+---
+apiVersion: v1
+data:
+  POSTGRES_DB: memes
+kind: ConfigMap
+metadata:
+  name: env2
   namespace: memes
 ---
 apiVersion: v1
@@ -50,6 +57,8 @@ spec:
       - envFrom:
         - configMapRef: 
             name: env
+        - configMapRef: 
+            name: env2
         - secretRef: 
             name: db-pass
         image: postgres
@@ -64,7 +73,7 @@ kind: Service
 metadata:
   labels:
     run: postgres
-  name: postgresß
+  name: postgres
   namespace: memes
 spec:
   ports:
@@ -79,9 +88,19 @@ spec:
 apiVersion: v1
 data:
   RAILS_ENV: production
+  HELLO_THERE: peter
 kind: ConfigMap
 metadata:
   name: app-env
+  namespace: memes
+---
+apiVersion: v1
+data:
+  HELLO_THERE: brian
+  FUCK_OFF: bob
+kind: ConfigMap
+metadata:
+  name: app-app
   namespace: memes
 ---
 apiVersion: v1
@@ -118,17 +137,42 @@ spec:
         run: app
     spec:
       containers:
-      - envFrom:
+      - envFrom: 
         - configMapRef: 
             name: app-env
         - secretRef: 
             name: app-db-pass
         image: reddit_scraper
         imagePullPolicy: Never
+        livenessProbe:
+          httpGet:
+            path: /health_check
+            port: 3000
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /health_check
+            port: 3000
+          initialDelaySeconds: 3
+          periodSeconds: 3
         name: app
         ports:
         - containerPort: 3000
           protocol: TCP
+        volumeMounts:
+        - mountPath: /hey/brian
+          name: brian-app
+          readOnly: true
+          subPath: SOD_OFF
+        - mountPath: /hey/peter2
+          name: brian-app
+          readOnly: true
+          subPath: HELLO_THERE
+        - mountPath: /myapp/config.yaml
+          name: brian-app
+          readOnly: true
+          subPath: HELLO_THERE
       initContainers:
       - command:
         - rake
@@ -141,6 +185,10 @@ spec:
         image: reddit_scraper
         imagePullPolicy: Never
         name: db-migrate
+      volumes:
+      - configMap: 
+          name: app-app
+        name: brian-app
 ---
 apiVersion: v1
 kind: Service
@@ -195,3 +243,40 @@ spec:
           restartPolicy: Never
   schedule: '*/30 * * * *'
   successfulJobsHistoryLimit: 3
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+  namespace: memes
+spec:
+  containers:
+  - name: app
+    image: reddit-scraper
+    resources:
+      limits:
+        cpu: "2"
+      requests:
+        cpu: "1"
+    args:
+    - -cpus
+    - "2"
+  ---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+  namespace: memes
+spec:
+  containers:
+  - name: postgres
+    image: reddit-scraper
+    resources:
+      limits:
+        cpu: "2"
+      requests:
+        cpu: "1"
+    args:
+    - -cpus
+    - "2"
+---
