@@ -121,7 +121,7 @@ metadata:
   namespace: memes
 spec:
   progressDeadlineSeconds: 600
-  replicas: 1
+  replicas: 2
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -157,6 +157,13 @@ spec:
           initialDelaySeconds: 3
           periodSeconds: 3
         name: app
+        resources:
+          limits:
+            cpu: "1"
+            memory: 5512Mi
+          requests:
+            cpu: "1"
+            memory: 512Mi
         ports:
         - containerPort: 3000
           protocol: TCP
@@ -233,9 +240,37 @@ spec:
             imagePullPolicy: Never
             name: worker
             resources:
+              limits:
+                cpu: "1"
+                memory: 512Mi
               requests:
                 cpu: "1"
                 memory: 512Mi
           restartPolicy: Never
   schedule: '*/30 * * * *'
   successfulJobsHistoryLimit: 3
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: app
+  namespace: memes
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: app
+  minReplicas: !!int 1
+  maxReplicas: !!int 3
+  targetCPUUtilizationPercentage: 65
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: app
+  namespace: memes
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      run: app
